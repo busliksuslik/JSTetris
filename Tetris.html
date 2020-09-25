@@ -41,8 +41,7 @@
 			<tr>
 				<th>
 					
-					<h1 id="h1"> Laabe-Buslaev BreakOut 2.2 Classic </h1>
-					<h1 id="h3"> Press on screen to play </h1>
+					<h1 id="h1"> Tetris </h1>
 
 				</th>
 
@@ -51,61 +50,47 @@
 			<tr>
 				<th>
 
-					<canvas id="canvas" width="1920" height="1080" style="border:1px solid #FFFFFF" onclick="startstart()"> </canvas>
+					<canvas id="canvas" width="1920" height="1080" style="border:1px solid #FFFFFF"> </canvas>
 					
 				</th>
 
 			</tr>
 		</table>
 
-		<audio id="dead"> 
-			<source src="MamkaSgorela.mp3">
-		</audio>
-
-		<audio id="win"> 
-			<source src="Win.mp3">
-		</audio>
-
-		<audio id="boom"> 
-			<source src="boom.mp3">
-		</audio>
-
-		<img id="img1" src="MotherBurnt.png" hidden="hidden">
-
 		<script type="text/javascript">
 
-			const I = [
+			var Iblock = [
 			[".",".","Y","."],
 			[".",".","Y","."],
 			[".",".","Y","."],
 			[".",".","Y","."]]
 
-			const O = [
+			var Oblock = [
 			["Y","Y"],
 			["Y","Y"]]
 
-			const J = [
+			var Jblock = [
 			["Y",".","."],
 			["Y","Y","Y"],
 			[".",".","."]]
 
-			const L = [
+			var Lblock = [
 			[".",".","Y"],
 			["Y","Y","Y"],
 			[".",".","."]]
 
-			const T = [
+			var Tblock = [
 			[",","Y","."],
 			["Y","Y","Y"],
 			[".",".","."]]
 
-			const Z = [
+			var Zblock = [
 			["Y","Y","."],
 			[".","Y","Y"],
 			[".",".","."]]
 
 
-			const S = [
+			var Sblock = [
 			[".","Y","Y"],
 			["Y","Y","."],
 			[".",".","."]]
@@ -117,14 +102,7 @@
 
 			const grid = 15;
 
-			var paddleSpeed = 13;
-			var ballSpeed = 8;
-			var tped = 0;
-			var cellsAmount = 21;
-
-			var rainbow = document.getElementById("rainbow");
-
-			const maxdownx = canvas.width - cellsAmount*grid;
+			//const maxdownx = canvas.width - cellsAmount*grid;
 
 			var press = document.getElementById("h3");
 
@@ -141,45 +119,97 @@
 
 			var Color = "white";
 
-			class Brick{
-				constructor(){
+			class Block{
+				Block(){
+					this.blockType  = setBlockType();
+					this.bricks = [];
+					this.x = 5;
+					this.y = -4;
+					setBricks();
+				}
+				setBricks(){
+					if (this.blockType.length % 2 === 0){
+						for (var i = this.blockType.length/2 - this.blockType.length + 1; i<this.blockType.length - this.blockType.length/2 - 1;i++){
+							for (var j = this.blockType[i].length/2 - this.blockType[i].length + 1; i<this.blockType[i].length - this.blockType[i].length/2 - 1;i++){
+								bricks.push(new Brick(i,j));
+							}
+						}
+					} else if (this.blockType.length % 2 === 1){
+						for (var i = 0 - (this.blockType.length/2 - 1)/2; i< (this.blockType.length/2 - 1)/2 ;i++){
+							for (var j = 0 - (this.blockType[i].length/2 - 1)/2; i < (this.blockType[i].length/2 - 1)/2;i++){
+								bricks.push(new Brick(i,j));
+							}
+						}
+					} 
+				}
+				draw(){
+					for (var i = 0;i < this.blockType.length; i++){
+						for (var i = 0;i < this.blockType[i].length; i++)
+							this.blockType[i][j].draw(this.x,this.y);
+					}
+				}
+				setBlockType(){
+					var ch = Math.round(Math.random()*7);
+					if (ch === 0) {
+						return Iblock;
+					} else if (ch === 1){
+						return Oblock;
+					} else if (ch === 2){
+						return Jblock;
+					} else if (ch === 3){
+						return Lblock;
+					} else if (ch === 4){
+						return Tblock;
+					} else if (ch === 5){
+						return Zblock;
+					} else {
+						return Sblock;
+					}
+				}
 
+			}
+
+			class Brick{
+				constructor(rx,ry){
+					this.rx = rx;
+					this.ry = ry;
+				}
+				draw(x,y){
+					beepboop((x*grid + this.rx)+"    "+(y*grid+ this.ry));
+
+					ctx.fillStyle = ("#FFFFFF");
+					ctx.fillRect(x*grid + this.rx, y*grid+ this.ry, grid, grid);
 				}
 			}
 
 			function start(){
-				ups = [];
-				paddle = [];
-
-				ball.x = canvas.width / 2;
-				ball.y = canvas.height / 2;
-				ball.dy = -ballSpeed;
-				tped = 0;
-
-				seconds = -1;
-
-				for (i = 0; i < 8; i++){
-					for (j = 0; j < 14; j++){
-						ups.push(new up(j*130+60, i*30 + 65));
-					}
-				}
-				for (i = 0; i < cellsAmount; i++){
-					relpos = (i / cellsAmount) * 16 + 2;
-					paddle.push(new cell(canvas.width / 2 - 150 + i*grid , canvas.height - grid * 3 , (relpos - 10), (-1*Math.abs(relpos-10)+10)));
-				}
-
-			} 
-				start();
+				
+				loop();
+			}
 
 			function beepboop(a = ""){
 				alert("beepboop"+ a);
 			}
+			a = new Block(5,5);
 
-			h1 = document.getElementById("h1");
+
+			requestAnimationFrame(loop)
+
+
+
+			function loop() {
+				a.draw(5,5);
+				requestAnimationFrame(loop);
+			}
+
+			/*h1 = document.getElementById("h1");
 			body = document.getElementById("body");
+			var Red = 255;
+			var Blue = 0;
+			var Green = 0;*/
 
 			//ChangeColor() есть. но не вызывается. Используется только в Rainbow Edition.
-			function ChangeColor() {
+			/*function ChangeColor() {
 					if (Red == 255 && Blue == 0) {
 						Green ++;
 					}
@@ -212,129 +242,22 @@
 					}
 
 					Color = "#" + HRed + HGreen + HBlue;
-				} 
-
-			function loop() {
-				requestAnimationFrame(loop);
-				ctx.clearRect(0,0,canvas.width,canvas.height);
-
-				for (i = 0; i < cellsAmount; i++){
-					paddle[i].x += paddle[i].speed;
-				}
-
-				for (i = 0; i < cellsAmount; i++){
-					if (paddle[i].x < grid){
-						for (j = 0; j < cellsAmount; j++){
-						paddle[j].x = grid*j + 2;
-						}
-					}
-				}
-				if (paddle[cellsAmount-1].x > canvas.width - paddle[cellsAmount-1].width){
-					for (j = 0; j < cellsAmount; j++){
-						paddle[j].x = maxdownx - ((cellsAmount-j) * grid) + cellsAmount * grid;
-						
-					}
-				}
-
-				ctx.fillStyle = (Color);
-				ctx.fillRect(ball.x,ball.y,ball.width,ball.height);
-
-				ctx.font = "35px Arial";
-				ctx.fillStyle = (Color);
-				ctx.fillText(seconds + " сек", 10, 35);
+				} */
 
 
-				for (i=0;i < ups.length;i++){
 
-					ups[i].draw();
-				}
-				for (i = 0; i < cellsAmount; i++){
-					ctx.fillStyle = (Color);
-					ctx.fillRect(paddle[i].x,paddle[i].y,paddle[i].width,paddle[i].height);
-				}
-
-
-				ball.x += ball.dx;
-				ball.y += ball.dy;
-
-				if (ball.y < grid) {
-
-					ball.y = grid;
-					ball.dy *= -1;
-
-				} else if (ball.x < grid) {
-
-					ball.x = grid;
-					ball.dx *= -1;
-
-				} else if (ball.x + grid > canvas.width - grid) {
-
-					ball.x = canvas.width - grid * 2;
-					ball.dx *= -1;
-				}
-
-				if (ball.y > canvas.height + 15) {
-
-					ctx.drawImage(img1, 10, 10);
-					dead.play();
-					alert("u vas mat' sgorela");
-					start();
-
-				}
-				if (ups.length === tped){
-					win.play();
-					alert("u vas mat' potushili");
-					start();
-				}
-
-				for (i = 0; i < cellsAmount; i++){
-					if (collides(ball, paddle[i])){
-						ball.dy = ball.dy*-1 - paddle[i].dy;
-						if (ball.dy > 8){
-							ball.dy = 8;
-						} 
-						if (ball.dy < -8){
-							ball.dy = -8;
-						} 
-
-						ball.y -=40;
-						ball.dx = ball.dx + paddle[i].dx;
-						if (ball.dx > 8){
-							ball.dx = 8;
-						} 
-						if (ball.dx < -8){
-							ball.dx = -8;
-						} 
-						break;
-					}
-				}
-
-				for (i=0;i < ups.length;i++){
-
-					if (collides(ball, ups[i])) {
-
-						ball.dy *= -1;
-						ball.y = ups[i].y + ups[i].height;
-						ups[i].x +=10000;
-						tped++;
-						boom.play();
-						break;
-					}
-				}	
-			}
-
-			var count = setInterval(counter, 1000);
+			/*var count = setInterval(counter, 1000);
 			var seconds = 0;
 
-			var colourchange = setInterval(ChangeColor, 10);
+			var colourchange = setInterval(ChangeColor, 10);*/
 
-			function counter() {
+			/*function counter() {
 
 				seconds++;
 				ctx.fillStyle = "white";
-			}
+			}*/
 
-			document.addEventListener('keydown', buttonpress);
+			/*document.addEventListener('keydown', buttonpress);
 
 				function buttonpress(e) {
 					if (e.which === 37) {
@@ -352,9 +275,9 @@
 						}
 
 					}
-				}
+				}*/
 
-				document.addEventListener('keyup', buttonunpress);
+				/*document.addEventListener('keyup', buttonunpress);
 
 				function buttonunpress(e) {
 
@@ -388,7 +311,7 @@
 						paddle[i].speed = 0;
 
 				}
-			}
+			}*/
 
 		</script>
 
